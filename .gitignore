@@ -1,0 +1,10 @@
+.DS_Store
+*.log
+
+# secrets
+**/*.key
+**/*.pem
+**/*id_rsa*
+**/*id_ed25519*
+.env
+.env.*
