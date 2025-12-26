@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+dotfiles_dir="$HOME/.dotfiles"
+
+echo "==> Installing Homebrew (if missing)"
+if ! command -v brew >/dev/null 2>&1; then
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  if [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  elif [ -x /usr/local/bin/brew ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+  fi
+fi
+
+echo "==> Installing packages from Brewfile"
+brew bundle --file "$dotfiles_dir/Brewfile"
+
+echo "==> Linking configs"
+mkdir -p "$HOME/.config"
+
+ln -sf "$dotfiles_dir/home/.zshrc" "$HOME/.zshrc"
+
+mkdir -p "$HOME/.config/yabai"
+ln -sf "$dotfiles_dir/config/yabai/yabairc" "$HOME/.config/yabai/yabairc"
+
+mkdir -p "$HOME/.config/skhd"
+ln -sf "$dotfiles_dir/config/skhd/skhdrc" "$HOME/.config/skhd/skhdrc"
+
+mkdir -p "$HOME/.config/nvim"
+# if you vendored kickstart as a folder, link the folder instead:
+# ln -sf "$dotfiles_dir/config/nvim" "$HOME/.config/nvim"
+ln -sf "$dotfiles_dir/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
+
+echo "==> Starting services"
+brew services start yabai || true
+brew services start skhd || true
+
+echo "==> Done"
+echo "IMPORTANT: You still need to grant macOS permissions for yabai/skhd (next step)."
+
