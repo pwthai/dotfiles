@@ -1,8 +1,11 @@
-tap "koekeishiya/formulae"
+tap "nikitabobko/tap"
+cask "aerospace"
 
-brew "yabai"
-brew "skhd"
+cask "obsidian"
+
 brew "neovim"
+brew "borders"
+brew "sketchybar"
 
 # strongly recommended for neovim plugins / searching
 brew "ripgrep"

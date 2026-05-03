@@ -1,0 +1,1 @@
+/Users/peterthai/.dotfiles/config/nvim/init.lua

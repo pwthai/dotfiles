@@ -105,6 +105,7 @@ source $ZSH/oh-my-zsh.sh
 
 alias reload="source ~/.zshrc"
 alias erc="vim ~/.zshrc"
+alias dotsync="~/.dotfiles/sync"
 
 alias lg="lazygit"
 alias ld="lazydocker"
