@@ -21,21 +21,77 @@ mkdir -p "$HOME/.config"
 
 ln -sf "$dotfiles_dir/home/.zshrc" "$HOME/.zshrc"
 
-mkdir -p "$HOME/.config/yabai"
-ln -sf "$dotfiles_dir/config/yabai/yabairc" "$HOME/.config/yabai/yabairc"
-
-mkdir -p "$HOME/.config/skhd"
-ln -sf "$dotfiles_dir/config/skhd/skhdrc" "$HOME/.config/skhd/skhdrc"
-
 mkdir -p "$HOME/.config/nvim"
 # if you vendored kickstart as a folder, link the folder instead:
 # ln -sf "$dotfiles_dir/config/nvim" "$HOME/.config/nvim"
 ln -sf "$dotfiles_dir/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
 
 echo "==> Starting services"
-brew services start yabai || true
-brew services start skhd || true
+
+# Add borders
+"$dotfiles_dir/scripts/start-borders.sh" || true
 
 echo "==> Done"
-echo "IMPORTANT: You still need to grant macOS permissions for yabai/skhd (next step)."
+echo ""
+#!/usr/bin/env bash
+set -euo pipefail
+
+dotfiles_dir="$HOME/.dotfiles"
+
+echo "==> Checking Xcode Command Line Tools"
+if ! xcode-select -p >/dev/null 2>&1; then
+  echo "Xcode Command Line Tools not found."
+  echo "Run: sudo xcode-select --install"
+  exit 1
+fi
+
+echo "==> Installing Homebrew (if missing)"
+if ! command -v brew >/dev/null 2>&1; then
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+fi
+
+# Ensure brew is on PATH (Apple Silicon + Intel)
+if [ -x /opt/homebrew/bin/brew ]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+
+echo "==> Installing packages from Brewfile"
+brew bundle --file "$dotfiles_dir/Brewfile"
+
+echo "==> Linking configs"
+mkdir -p "$HOME/.config"
+
+ln -sf "$dotfiles_dir/home/.zshrc" "$HOME/.zshrc"
+
+mkdir -p "$HOME/.config/nvim"
+# If you vendored kickstart as a folder, link the folder instead:
+# ln -sf "$dotfiles_dir/config/nvim" "$HOME/.config/nvim"
+ln -sf "$dotfiles_dir/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
+
+echo "==> Applying macOS defaults"
+# Hide Dock + remove delay
+defaults write com.apple.dock autohide -bool true
+defaults write com.apple.dock autohide-delay -float 0
+defaults write com.apple.dock autohide-time-modifier -float 0
+
+# Keep Spaces order stable (required for Hyprland-like workspace numbers)
+defaults write com.apple.dock mru-spaces -bool false
+
+# Restart Dock to apply settings
+killall Dock >/dev/null 2>&1 || true
+
+echo "==> Starting borders (if available)"
+if [ -x "$dotfiles_dir/scripts/start-borders.sh" ]; then
+  "$dotfiles_dir/scripts/start-borders.sh" || true
+else
+  echo "Skipping borders: $dotfiles_dir/scripts/start-borders.sh not found/executable"
+fi
+
+echo "==> Done"
+echo ""
+echo "MANUAL STEPS REQUIRED:"
+echo "2) System Settings -> Desktop & Dock: confirm 'Automatically rearrange Spaces...' is OFF"
+echo "3) Create Spaces in Mission Control for your workspace keybinds (1..5, etc.)"
 

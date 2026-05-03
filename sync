@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+dotfiles_dir="$HOME/.dotfiles"
+
+echo "==> Syncing dotfiles"
+
+# Ensure base config dir exists
+mkdir -p "$HOME/.config"
+
+link_file () {
+  src="$1"
+  dest="$2"
+
+  mkdir -p "$(dirname "$dest")"
+  ln -sf "$src" "$dest"
+  echo "linked: $dest -> $src"
+}
+
+link_dir () {
+  src="$1"
+  dest="$2"
+
+  rm -rf "$dest"
+  ln -sf "$src" "$dest"
+  echo "linked dir: $dest -> $src"
+}
+
+echo "==> Linking home files"
+link_file "$dotfiles_dir/home/.zshrc" "$HOME/.zshrc"
+
+echo "==> Linking Neovim"
+link_dir "$dotfiles_dir/config/nvim" "$HOME/.config/nvim"
+
+echo "==> Linking Aerospace config"
+link_dir "$dotfiles_dir/config/aerospace" "$HOME/.config/aerospace"
+
+echo "==> Done syncing"
