@@ -1,11 +1,15 @@
 tap "nikitabobko/tap"
-cask "aerospace"
+cask "nikitabobko/tap/aerospace"
 
 cask "obsidian"
 
 brew "neovim"
-brew "borders"
-brew "sketchybar"
+
+tap "FelixKratz/formulae"
+brew "FelixKratz/formulae/borders"
+
+tap "FelixKratz/formulae"
+brew "FelixKratz/formulae/sketchybar"
 
 # strongly recommended for neovim plugins / searching
 brew "ripgrep"
