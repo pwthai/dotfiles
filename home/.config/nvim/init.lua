@@ -1,0 +1,74 @@
+vim.g.base46_cache = vim.fn.stdpath "data" .. "/nvchad/base46/"
+vim.g.mapleader = " "
+
+-- bootstrap lazy and all plugins
+local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
+
+if not vim.loop.fs_stat(lazypath) then
+  local repo = "https://github.com/folke/lazy.nvim.git"
+  vim.fn.system { "git", "clone", "--filter=blob:none", repo, "--branch=stable", lazypath }
+end
+
+vim.opt.rtp:prepend(lazypath)
+
+local lazy_config = require "configs.lazy"
+
+-- load plugins
+require("lazy").setup({
+  {
+    "NvChad/NvChad",
+    lazy = false,
+    branch = "v2.5",
+    import = "nvchad.plugins",
+    config = function()
+      require "options"
+    end,
+  },
+
+  { import = "plugins" },
+}, lazy_config)
+
+-- load theme
+local function safe_dofile(path)
+  if vim.loop.fs_stat(path) then
+    dofile(path)
+  end
+end
+
+safe_dofile(vim.g.base46_cache .. "defaults")
+safe_dofile(vim.g.base46_cache .. "statusline")
+
+require "nvchad.autocmds"
+
+vim.schedule(function()
+  require "mappings"
+end)
+
+-- Force transparency after everything loads
+local function apply_transparency()
+  local groups = {
+    "Normal", "NormalFloat", "NormalNC", "SignColumn", 
+    "StatusLine", "StatusLineNC", "Folded", "FoldColumn",
+    "VertSplit", "NvimTreeNormal", "NvimTreeNormalNC",
+    "NvimTreeEndOfBuffer",
+    "TelescopeNormal", "TelescopeBorder",
+    "TabLine", "TabLineFill", "TabLineSel",
+    "TbLineBufOn", "TbLineBufOff", "TblineFill", "TbLineBufOnModified",
+    "TbBufLineBufOffModified", "TbBufLineBufOnClose", "TbBufLineBufOffClose"
+  }
+  for _, group in ipairs(groups) do
+    vim.api.nvim_set_hl(0, group, { bg = "none" })
+  end
+  
+  -- Soften the nvim-tree vertical separator line
+  vim.api.nvim_set_hl(0, "NvimTreeWinSeparator", { fg = "#2a2e38", bg = "none" })
+  vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#2a2e38", bg = "none" })
+end
+
+vim.schedule(apply_transparency)
+
+-- Reapply when opening NvimTree
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "NvimTree",
+  callback = apply_transparency,
+})
