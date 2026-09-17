@@ -1,97 +1,118 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-dotfiles_dir="$HOME/.dotfiles"
+DOTFILES="$HOME/dotfiles"
 
-echo "==> Installing Homebrew (if missing)"
-if ! command -v brew >/dev/null 2>&1; then
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  if [ -x /opt/homebrew/bin/brew ]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-  elif [ -x /usr/local/bin/brew ]; then
-    eval "$(/usr/local/bin/brew shellenv)"
-  fi
-fi
+step()  { echo ""; echo "==> $*"; }
+info()  { echo "    $*"; }
 
-echo "==> Installing packages from Brewfile"
-brew bundle --file "$dotfiles_dir/Brewfile"
-
-echo "==> Linking configs"
-mkdir -p "$HOME/.config"
-
-ln -sf "$dotfiles_dir/home/.zshrc" "$HOME/.zshrc"
-
-mkdir -p "$HOME/.config/nvim"
-# if you vendored kickstart as a folder, link the folder instead:
-# ln -sf "$dotfiles_dir/config/nvim" "$HOME/.config/nvim"
-ln -sf "$dotfiles_dir/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
-
-echo "==> Starting services"
-
-# Add borders
-"$dotfiles_dir/scripts/start-borders.sh" || true
-
-echo "==> Done"
-echo ""
-#!/usr/bin/env bash
-set -euo pipefail
-
-dotfiles_dir="$HOME/.dotfiles"
-
-echo "==> Checking Xcode Command Line Tools"
+# ─── 1. Xcode Command Line Tools ─────────────────────────────────────────────
+step "Checking Xcode Command Line Tools"
 if ! xcode-select -p >/dev/null 2>&1; then
-  echo "Xcode Command Line Tools not found."
-  echo "Run: sudo xcode-select --install"
+  echo "Xcode CLT not found. Run: xcode-select --install, then re-run this script."
   exit 1
 fi
 
-echo "==> Installing Homebrew (if missing)"
+# ─── 2. Homebrew ─────────────────────────────────────────────────────────────
+step "Installing Homebrew (if missing)"
 if ! command -v brew >/dev/null 2>&1; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
-
-# Ensure brew is on PATH (Apple Silicon + Intel)
 if [ -x /opt/homebrew/bin/brew ]; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 elif [ -x /usr/local/bin/brew ]; then
   eval "$(/usr/local/bin/brew shellenv)"
 fi
 
-echo "==> Installing packages from Brewfile"
-brew bundle --file "$dotfiles_dir/Brewfile"
+# ─── 3. Packages ─────────────────────────────────────────────────────────────
+step "Installing packages from Brewfile"
+brew bundle --file "$DOTFILES/Brewfile"
 
-echo "==> Linking configs"
+# ─── 4. Oh My Zsh ────────────────────────────────────────────────────────────
+step "Installing Oh My Zsh (if missing)"
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+  RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+else
+  info "Already installed"
+fi
+
+# ─── 5. NVM ──────────────────────────────────────────────────────────────────
+step "Installing NVM (if missing)"
+if [ ! -d "$HOME/.nvm" ]; then
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+else
+  info "Already installed"
+fi
+
+# ─── 6. Stow dotfiles ────────────────────────────────────────────────────────
+step "Stowing dotfiles (target: $HOME)"
+
+# Back up any plain files that would block stow
+_backup_if_plain() {
+  local path="$1"
+  if [ -e "$path" ] && [ ! -L "$path" ]; then
+    local backup="${path}.bak.$(date +%s)"
+    mv "$path" "$backup"
+    info "Backed up $(basename "$path") -> $backup"
+  fi
+}
+
+_backup_if_plain "$HOME/.zshrc"
+_backup_if_plain "$HOME/.tmux.conf"
+_backup_if_plain "$HOME/.gitmux.conf"
+_backup_if_plain "$HOME/.gitmodules"
+_backup_if_plain "$HOME/.config/aerospace"
+_backup_if_plain "$HOME/.config/ghostty"
+_backup_if_plain "$HOME/.config/nvim"
+_backup_if_plain "$HOME/.config/ohmyzsh"
+_backup_if_plain "$HOME/.config/opencode"
+
 mkdir -p "$HOME/.config"
+stow --target="$HOME" --dir="$DOTFILES" --restow home
 
-ln -sf "$dotfiles_dir/home/.zshrc" "$HOME/.zshrc"
+# ─── 7. Oh My Zsh custom theme ───────────────────────────────────────────────
+step "Linking Oh My Zsh theme"
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+mkdir -p "$ZSH_CUSTOM/themes"
+ln -sf \
+  "$DOTFILES/home/.config/ohmyzsh/themes/bubble-catppuccin.zsh-theme" \
+  "$ZSH_CUSTOM/themes/bubble-catppuccin.zsh-theme"
+info "bubble-catppuccin.zsh-theme -> $ZSH_CUSTOM/themes/"
 
-mkdir -p "$HOME/.config/nvim"
-# If you vendored kickstart as a folder, link the folder instead:
-# ln -sf "$dotfiles_dir/config/nvim" "$HOME/.config/nvim"
-ln -sf "$dotfiles_dir/config/nvim/init.lua" "$HOME/.config/nvim/init.lua"
+# ─── 8. TPM (Tmux Plugin Manager) ────────────────────────────────────────────
+step "Installing TPM"
+TPM="$HOME/.tmux/plugins/tpm"
+if [ ! -d "$TPM" ]; then
+  git clone https://github.com/tmux-plugins/tpm "$TPM"
+else
+  info "TPM present, pulling latest..."
+  git -C "$TPM" pull --ff-only || true
+fi
 
-echo "==> Applying macOS defaults"
-# Hide Dock + remove delay
+# ─── 9. Install tmux plugins headlessly ──────────────────────────────────────
+step "Installing tmux plugins via TPM"
+"$TPM/bin/install_plugins" || true
+
+# ─── 10. macOS defaults ──────────────────────────────────────────────────────
+step "Applying macOS defaults"
 defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock autohide-delay -float 0
 defaults write com.apple.dock autohide-time-modifier -float 0
-
-# Keep Spaces order stable (required for Hyprland-like workspace numbers)
 defaults write com.apple.dock mru-spaces -bool false
-
-# Restart Dock to apply settings
 killall Dock >/dev/null 2>&1 || true
 
-echo "==> Starting borders (if available)"
-if [ -x "$dotfiles_dir/scripts/start-borders.sh" ]; then
-  "$dotfiles_dir/scripts/start-borders.sh" || true
-else
-  echo "Skipping borders: $dotfiles_dir/scripts/start-borders.sh not found/executable"
+# ─── 11. Services ────────────────────────────────────────────────────────────
+step "Starting borders"
+if [ -x "$DOTFILES/scripts/start-borders.sh" ]; then
+  "$DOTFILES/scripts/start-borders.sh" || true
 fi
 
-echo "==> Done"
+# ─────────────────────────────────────────────────────────────────────────────
+step "Done"
 echo ""
-echo "MANUAL STEPS REQUIRED:"
-echo "2) System Settings -> Desktop & Dock: confirm 'Automatically rearrange Spaces...' is OFF"
-echo "3) Create Spaces in Mission Control for your workspace keybinds (1..5, etc.)"
-
+echo "NEXT STEPS:"
+echo "  1) Open a new terminal (or run: exec zsh)"
+echo "  2) In tmux, press prefix + I to install plugins for the first time"
+echo "  3) System Settings -> Desktop & Dock:"
+echo "       - Turn OFF 'Automatically rearrange Spaces based on most recent use'"
+echo "  4) Create Spaces in Mission Control for your workspace keybinds (1..5, etc.)"

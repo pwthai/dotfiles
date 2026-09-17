@@ -1,0 +1,11 @@
+{
+  "$schema": "https://opencode.ai/tui.json",
+  "theme": "catppuccin",
+  "keybinds": {
+    "session_child_cycle": "<leader>right",
+    "session_child_cycle_reverse": "<leader>left"
+  },
+  "plugin": [
+    "oh-my-opencode-slim"
+  ]
+}

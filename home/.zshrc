@@ -110,6 +110,7 @@ alias dotsync="~/.dotfiles/sync"
 alias lg="lazygit"
 alias ld="lazydocker"
 alias nv="nvim ."
+alias oc="opencode"
 
 eval "$(zoxide init --cmd cd zsh)"
 eval $(thefuck --alias)

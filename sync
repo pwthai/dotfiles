@@ -1,38 +1,36 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-dotfiles_dir="$HOME/.dotfiles"
+DOTFILES="$HOME/dotfiles"
 
-echo "==> Syncing dotfiles"
+_backup_if_plain() {
+  local path="$1"
+  if [ -e "$path" ] && [ ! -L "$path" ]; then
+    local backup="${path}.bak.$(date +%s)"
+    mv "$path" "$backup"
+    echo "    Backed up $(basename "$path") -> $backup"
+  fi
+}
 
-# Ensure base config dir exists
+echo "==> Backing up any unmanaged conflicting targets"
+_backup_if_plain "$HOME/.zshrc"
+_backup_if_plain "$HOME/.tmux.conf"
+_backup_if_plain "$HOME/.gitmux.conf"
+_backup_if_plain "$HOME/.config/aerospace"
+_backup_if_plain "$HOME/.config/ghostty"
+_backup_if_plain "$HOME/.config/nvim"
+_backup_if_plain "$HOME/.config/ohmyzsh"
+_backup_if_plain "$HOME/.config/opencode"
+
+echo "==> Restowing dotfiles"
 mkdir -p "$HOME/.config"
+stow --target="$HOME" --dir="$DOTFILES" --restow home
 
-link_file () {
-  src="$1"
-  dest="$2"
+echo "==> Refreshing Oh My Zsh theme symlink"
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+mkdir -p "$ZSH_CUSTOM/themes"
+ln -sf \
+  "$DOTFILES/home/.config/ohmyzsh/themes/bubble-catppuccin.zsh-theme" \
+  "$ZSH_CUSTOM/themes/bubble-catppuccin.zsh-theme"
 
-  mkdir -p "$(dirname "$dest")"
-  ln -sf "$src" "$dest"
-  echo "linked: $dest -> $src"
-}
-
-link_dir () {
-  src="$1"
-  dest="$2"
-
-  rm -rf "$dest"
-  ln -sf "$src" "$dest"
-  echo "linked dir: $dest -> $src"
-}
-
-echo "==> Linking home files"
-link_file "$dotfiles_dir/home/.zshrc" "$HOME/.zshrc"
-
-echo "==> Linking Neovim"
-link_dir "$dotfiles_dir/config/nvim" "$HOME/.config/nvim"
-
-echo "==> Linking Aerospace config"
-link_dir "$dotfiles_dir/config/aerospace" "$HOME/.config/aerospace"
-
-echo "==> Done syncing"
+echo "==> Done"
