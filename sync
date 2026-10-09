@@ -3,24 +3,62 @@ set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 
-_backup_if_plain() {
+_backup_if_unmanaged() {
   local path="$1"
-  if [ -e "$path" ] && [ ! -L "$path" ]; then
-    local backup="${path}.bak.$(date +%s)"
-    mv "$path" "$backup"
-    echo "    Backed up $(basename "$path") -> $backup"
+  local resolved link parent backup base suffix=1 links=0
+
+  if [ ! -e "$path" ] && [ ! -L "$path" ]; then
+    return
   fi
+
+  if [ -L "$path" ]; then
+    resolved="$path"
+    while [ -L "$resolved" ]; do
+      links=$((links + 1))
+      [ "$links" -le 40 ] || break
+      link="$(readlink "$resolved")" || break
+      case "$link" in
+        /*) resolved="$link" ;;
+        *)
+          parent="$(cd -P "$(dirname "$resolved")" && pwd -P)" || break
+          resolved="$parent/$link"
+          ;;
+      esac
+    done
+
+    if [ -e "$resolved" ]; then
+      if [ -d "$resolved" ]; then
+        resolved="$(cd -P "$resolved" && pwd -P)" || resolved=""
+      else
+        parent="$(cd -P "$(dirname "$resolved")" && pwd -P)" || parent=""
+        resolved="$parent/$(basename "$resolved")"
+      fi
+      case "$resolved" in
+        "$DOTFILES"|"$DOTFILES"/*) return ;;
+      esac
+    fi
+  fi
+
+  base="${path}.bak.$(date +%s)"
+  backup="$base"
+  while [ -e "$backup" ] || [ -L "$backup" ]; do
+    backup="${base}.${suffix}"
+    suffix=$((suffix + 1))
+  done
+  mv "$path" "$backup"
+  echo "    Backed up unmanaged target $(basename "$path") -> $backup"
 }
 
-echo "==> Backing up any unmanaged conflicting targets"
-_backup_if_plain "$HOME/.zshrc"
-_backup_if_plain "$HOME/.tmux.conf"
-_backup_if_plain "$HOME/.gitmux.conf"
-_backup_if_plain "$HOME/.config/aerospace"
-_backup_if_plain "$HOME/.config/ghostty"
-_backup_if_plain "$HOME/.config/nvim"
-_backup_if_plain "$HOME/.config/ohmyzsh"
-_backup_if_plain "$HOME/.config/opencode"
+echo "==> Backing up unmanaged conflicting targets"
+_backup_if_unmanaged "$HOME/.zshrc"
+_backup_if_unmanaged "$HOME/.tmux.conf"
+_backup_if_unmanaged "$HOME/.gitmux.conf"
+_backup_if_unmanaged "$HOME/.gitmodules"
+_backup_if_unmanaged "$HOME/.config/aerospace"
+_backup_if_unmanaged "$HOME/.config/ghostty"
+_backup_if_unmanaged "$HOME/.config/nvim"
+_backup_if_unmanaged "$HOME/.config/ohmyzsh"
+_backup_if_unmanaged "$HOME/.config/opencode"
 
 echo "==> Restowing dotfiles"
 mkdir -p "$HOME/.config"
