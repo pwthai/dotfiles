@@ -1,18 +1,23 @@
 # Taps
 tap "nikitabobko/tap"
 tap "FelixKratz/formulae"
+tap "anomalyco/tap"
 
 # Window manager
 cask "nikitabobko/tap/aerospace"
 
 # Terminal
 cask "ghostty"
+cask "font-hack-nerd-font"
 
 # Notes
 cask "obsidian"
 
 # Dotfile management
 brew "stow"
+
+# AI tools
+brew "anomalyco/tap/opencode"
 
 # Shell tools
 brew "zoxide"
