@@ -6,6 +6,6 @@
     "session_child_cycle_reverse": "<leader>left"
   },
   "plugin": [
-    "oh-my-opencode-slim"
+    "oh-my-opencode-slim@3.0.3"
   ]
 }
