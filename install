@@ -159,7 +159,43 @@ _backup_if_unmanaged "$HOME/.config/opencode"
 mkdir -p "$HOME/.config"
 stow --target="$HOME" --dir="$DOTFILES" --restow home
 
-# ─── 7. Oh My Zsh custom theme ───────────────────────────────────────────────
+# ─── 7. Initialize OpenCode agents ────────────────────────────────────────────
+_verify_opencode_agents() {
+  local agent_list="$1"
+  local agent missing_agents=""
+  shift
+
+  for agent in "$@"; do
+    if ! printf '%s\n' "$agent_list" | grep -Eq "^[[:space:]]*${agent}[[:space:]]+\((primary|subagent)\)[[:space:]]*$"; then
+      missing_agents="${missing_agents}${missing_agents:+, }${agent}"
+    fi
+  done
+
+  if [ -n "$missing_agents" ]; then
+    echo "Error: OpenCode did not load required agents: $missing_agents" >&2
+    return 1
+  fi
+
+  info "Verified required OpenCode agents"
+}
+
+step "Initializing OpenCode agents"
+if ! command -v opencode >/dev/null 2>&1; then
+  echo "Error: OpenCode is unavailable after package installation." >&2
+  exit 1
+fi
+info "Loading configured agents and initializing the plugin cache..."
+if ! opencode_agent_list="$(opencode agent list 2>&1)"; then
+  printf '%s\n' "$opencode_agent_list" >&2
+  echo "Error: OpenCode agent plugin failed to load." >&2
+  exit 1
+fi
+if ! _verify_opencode_agents "$opencode_agent_list" \
+  orchestrator oracle librarian explorer designer fixer; then
+  exit 1
+fi
+
+# ─── 8. Oh My Zsh custom theme ───────────────────────────────────────────────
 step "Linking Oh My Zsh theme"
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 mkdir -p "$ZSH_CUSTOM/themes"
@@ -168,7 +204,7 @@ ln -sf \
   "$ZSH_CUSTOM/themes/bubble-catppuccin.zsh-theme"
 info "bubble-catppuccin.zsh-theme -> $ZSH_CUSTOM/themes/"
 
-# ─── 8. TPM (Tmux Plugin Manager) ────────────────────────────────────────────
+# ─── 9. TPM (Tmux Plugin Manager) ────────────────────────────────────────────
 step "Installing TPM"
 TPM="$HOME/.tmux/plugins/tpm"
 if [ ! -d "$TPM" ]; then
@@ -177,12 +213,34 @@ else
   info "TPM present, pulling latest..."
   git -C "$TPM" pull --ff-only || true
 fi
+if [ ! -x "$TPM/bin/install_plugins" ]; then
+  echo "Error: TPM install script is missing or not executable: $TPM/bin/install_plugins" >&2
+  exit 1
+fi
 
-# ─── 9. Install tmux plugins headlessly ──────────────────────────────────────
+# ─── 10. Install tmux plugins headlessly ─────────────────────────────────────
 step "Installing tmux plugins via TPM"
-"$TPM/bin/install_plugins" || true
+if ! "$TPM/bin/install_plugins"; then
+  echo "Error: TPM plugin installation failed." >&2
+  exit 1
+fi
+if [ ! -d "$HOME/.tmux/plugins/tmux" ]; then
+  echo "Error: Catppuccin tmux plugin was not installed at $HOME/.tmux/plugins/tmux" >&2
+  exit 1
+fi
 
-# ─── 10. macOS defaults ──────────────────────────────────────────────────────
+# ─── 11. Initialize Neovim plugins and theme ──────────────────────────────────
+step "Initializing Neovim plugins and theme"
+if ! command -v nvim >/dev/null 2>&1; then
+  echo "Error: Neovim is unavailable after package installation." >&2
+  exit 1
+fi
+if ! nvim --headless "+Lazy! restore" +qa; then
+  echo "Error: Neovim Lazy plugin restoration failed." >&2
+  exit 1
+fi
+
+# ─── 12. macOS defaults ──────────────────────────────────────────────────────
 step "Applying macOS defaults"
 defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock autohide-delay -float 0
@@ -190,7 +248,7 @@ defaults write com.apple.dock autohide-time-modifier -float 0
 defaults write com.apple.dock mru-spaces -bool false
 killall Dock >/dev/null 2>&1 || true
 
-# ─── 11. Services ────────────────────────────────────────────────────────────
+# ─── 13. Services ────────────────────────────────────────────────────────────
 step "Starting borders"
 if [ -x "$DOTFILES/scripts/start-borders.sh" ]; then
   "$DOTFILES/scripts/start-borders.sh" || true
@@ -201,7 +259,6 @@ step "Done"
 echo ""
 echo "NEXT STEPS:"
 echo "  1) Open a new terminal (or run: exec zsh)"
-echo "  2) In tmux, press prefix + I to install plugins for the first time"
-echo "  3) System Settings -> Desktop & Dock:"
+echo "  2) System Settings -> Desktop & Dock:"
 echo "       - Turn OFF 'Automatically rearrange Spaces based on most recent use'"
-echo "  4) Create Spaces in Mission Control for your workspace keybinds (1..5, etc.)"
+echo "  3) Create Spaces in Mission Control for your workspace keybinds (1..5, etc.)"

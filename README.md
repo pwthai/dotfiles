@@ -11,3 +11,6 @@ Install dependencies and stow the dotfiles:
 Run without verbose Homebrew bundle output:
 
 `./install --quiet`
+
+The installer initializes OpenCode agents, TPM tmux plugins, and Neovim Lazy
+plugins. Ghostty's macOS tabs appear after you open a second tab.

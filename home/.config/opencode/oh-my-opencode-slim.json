@@ -43,7 +43,7 @@
         "skills": [],
         "mcps": []
       },
-    "designer": {
+      "designer": {
       "model": "openai/gpt-5.6-terra",
       "variant": "medium",
       "skills": [
