@@ -10,15 +10,14 @@ source "$CONFIG_DIR/icons.sh"
 
 FONT="Hack Nerd Font:Regular:12.0"
 FONT_BOLD="Hack Nerd Font:Bold:12.0"
-ICON_FONT="Hack Nerd Font Mono:Regular:14.0"
 BAR_HEIGHT=27
 MODULE_HEIGHT=27
 PADDING=5
 RADIUS=7
 ITEM_EDGE_PADDING=9
 ITEM_GAP=3
-WORKSPACE_LABEL_PADDING=7
-CONNECTIVITY_EDGE_PADDING=5
+WORKSPACE_LABEL_PADDING=5
+CONNECTIVITY_EDGE_PADDING=6
 
 sketchybar --bar \
   position=top \
@@ -36,7 +35,7 @@ sketchybar --bar \
   shadow=off
 
 sketchybar --default \
-  icon.font="$ICON_FONT" \
+  icon.font="$TOP_BAR_ICON_FONT" \
   label.font="$FONT" \
   icon.color="$SUBTEXT" \
   label.color="$TEXT" \
@@ -52,7 +51,7 @@ sketchybar --default \
 # Left: an Apple-style system menu and compact workspace module. Each pill owns
 # its click target, so workspace switching works consistently on every display.
 sketchybar --add item apple left \
-  --set apple icon="$ICON_APPLE" icon.color="$LAVENDER" icon.font="$ICON_FONT" \
+  --set apple icon="$ICON_APPLE" icon.color="$LAVENDER" icon.font="$TOP_BAR_ICON_FONT" \
   icon.padding_left="$ITEM_EDGE_PADDING" icon.padding_right="$ITEM_EDGE_PADDING" label.drawing=off \
   script="$PLUGIN_DIR/apple_menu.sh host" \
   popup.align=left popup.height=29 popup.background.color="$MODULE_BG" \
@@ -121,10 +120,10 @@ sketchybar --add bracket workspaces workspace.1 workspace.2 workspace.3 workspac
   background.border_color="$MODULE_BORDER" background.border_width=1 \
   background.corner_radius="$RADIUS" background.height="$MODULE_HEIGHT" background.padding_left=3 background.padding_right=3
 
-# Keep the front-app label left of a built-in camera notch; it remains a quiet
+# Keep the front-app label left of a built-in camera notch; it remains a clear
 # centered-adjacent module on external displays without hardcoding monitor IDs.
 sketchybar --add item front_app q \
-  --set front_app icon.drawing=off label.font="$FONT" label.color="$SUBTEXT" \
+  --set front_app icon.drawing=off label.font="Hack Nerd Font:Bold:14.0" label.color="$TEXT" \
   label.max_chars=30 label.padding_left="$ITEM_EDGE_PADDING" label.padding_right="$ITEM_EDGE_PADDING" script="$PLUGIN_DIR/front_app.sh" \
   --subscribe front_app front_app_switched system_woke
 
@@ -189,7 +188,7 @@ configure_connectivity_item() {
   local status_script="$4"
 
   sketchybar --add item "$host" right \
-    --set "$host" icon="$icon" icon.font="$ICON_FONT" label.drawing=off update_freq="$update_freq" \
+    --set "$host" icon="$icon" icon.font="$TOP_BAR_ICON_FONT" label.drawing=off update_freq="$update_freq" \
       icon.padding_left="$CONNECTIVITY_EDGE_PADDING" icon.padding_right="$CONNECTIVITY_EDGE_PADDING" \
       background.drawing=off script="$status_script" \
       click_script="$PLUGIN_DIR/control_center.sh" \
@@ -200,11 +199,12 @@ configure_connectivity_item() {
 configure_connectivity_item wifi "$ICON_WIFI" 60 "$PLUGIN_DIR/wifi.sh"
 configure_connectivity_item bluetooth "$ICON_BLUETOOTH" 60 "$PLUGIN_DIR/bluetooth.sh"
 configure_connectivity_item focus "$ICON_FOCUS" 0 "$PLUGIN_DIR/connectivity.sh focus"
+sketchybar --set wifi icon.font="$EMPHASIZED_TOP_BAR_ICON_FONT"
 
 sketchybar --add bracket connectivity_group wifi bluetooth focus \
   --set connectivity_group background.drawing=on background.color="$MODULE_BG" \
   background.border_color="$MODULE_BORDER" background.border_width=1 \
-  background.corner_radius="$RADIUS" background.height="$MODULE_HEIGHT" background.padding_left=3 background.padding_right=3
+  background.corner_radius="$RADIUS" background.height="$MODULE_HEIGHT" background.padding_left=4 background.padding_right=4
 
 add_spacer connectivity_divider right 7
 
@@ -214,7 +214,7 @@ add_spacer connectivity_divider right 7
 sketchybar --add event spotify_playback_changed "com.spotify.client.PlaybackStateChanged"
 
 sketchybar --add item spotify right \
-  --set spotify icon="$ICON_SPOTIFY" icon.color="$SUBTEXT" label.drawing=off \
+  --set spotify icon="$ICON_SPOTIFY" icon.font="$EMPHASIZED_TOP_BAR_ICON_FONT" icon.color="$SUBTEXT" label.drawing=off \
     label.font="$FONT" label.color="$TEXT" label.max_chars=24 \
     icon.padding_left="$ITEM_EDGE_PADDING" icon.padding_right="$ITEM_GAP" \
     label.padding_left="$ITEM_GAP" label.padding_right="$ITEM_EDGE_PADDING" \
@@ -253,6 +253,7 @@ sketchybar --add bracket spotify_group spotify \
 add_spacer spotify_divider right 7
 
 configure_status_host volume "$ICON_VOLUME" "$PLUGIN_DIR/volume.sh" 0
+sketchybar --set volume icon.font="$EMPHASIZED_TOP_BAR_ICON_FONT"
 sketchybar --subscribe volume volume_change
 add_status_popup_row volume "$ICON_VOLUME" "$BLUE"
 add_status_settings_row volume "Sound Settings" "x-apple.systempreferences:com.apple.Sound-Settings.extension"

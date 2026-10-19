@@ -132,6 +132,11 @@ local function apply_transparency()
   apply_surface_groups({ "NvimTreeFolderName", "NvimTreeOpenedFolderName" }, lotus_pink, "none")
   apply_surface_groups({ "NvimTreeRootFolder", "NvimTreeSpecialFile" }, warm_ivory, "none")
 
+  -- Keep file-state recognition independent from Git's foreground colors:
+  -- the open file gets a quiet surface, while the cursor row gets a clear plum band.
+  preserve_highlight_with_background("NvimTreeOpenedHL", charcoal_red)
+  preserve_highlight_with_background("NvimTreeCursorLine", deep_crimson)
+
   apply_surface_groups({ "DiagnosticError", "DiagnosticSignError" }, akane_red, "none")
   apply_surface_groups({ "DiagnosticWarn", "DiagnosticSignWarn" }, vermilion, "none")
   apply_surface_groups({ "DiagnosticInfo", "DiagnosticSignInfo" }, lotus_pink, "none")

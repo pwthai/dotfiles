@@ -31,7 +31,8 @@ border_focused = "#e55454"
 border_unfocused = "#7f303a"
 status_bar_bg = "#241b20"
 cursor_color = "#e55454"
-cursor_line_bg = "#241b20"
+# A plum band marks navigation without borrowing any Git-status color.
+cursor_line_bg = "#7f303a"
 branch_name = "#f4c27a"
 help_indicator = "#7f303a"
 

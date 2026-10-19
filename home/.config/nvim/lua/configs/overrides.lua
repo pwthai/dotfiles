@@ -88,6 +88,8 @@ M.nvimtree = {
 
     renderer = {
         highlight_git = true,
+        -- Keep the open file visible even when focus moves into the editor.
+        highlight_opened_files = "all",
         icons = {
             show = {
                 git = true,

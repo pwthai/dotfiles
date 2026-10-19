@@ -10,6 +10,9 @@
   "diffs": {
     "wrap": "word"
   },
+  "tabs": {
+    "mode": "off"
+  },
   "session": {
     "sidebar": "auto",
     "scrollbar": false,

@@ -5,7 +5,7 @@ theme = akane
 font-family = "Hack Nerd Font"
 font-size = 13
 
-# Let the Akane Plum base breathe without weakening text contrast.
+# Let the wallpaper's upper violet breathe through the softened terminal canvas.
 # Ghostty supports this restrained blur on macOS.
 background-opacity = 0.90
 background-blur-radius = 12

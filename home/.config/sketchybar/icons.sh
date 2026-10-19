@@ -2,6 +2,9 @@
 
 # Hack Nerd Font Mono 3.5.1 glyphs, committed as literal UTF-8. This works in
 # macOS Bash 3.2, whose ANSI-C strings do not decode the \uXXXX form.
+export ICON_FONT="Hack Nerd Font Mono:Regular:14.0"
+export TOP_BAR_ICON_FONT="Hack Nerd Font Mono:Regular:16.0"
+export EMPHASIZED_TOP_BAR_ICON_FONT="Hack Nerd Font Mono:Regular:18.0"
 export ICON_APPLE=""            # Devicons Apple logo (U+E711)
 export ICON_ABOUT=""            # Font Awesome info circle (U+F129)
 export ICON_SETTINGS=""         # Font Awesome cog (U+F013)

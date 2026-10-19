@@ -107,6 +107,60 @@ alias reload="source ~/.zshrc"
 alias erc="vim ~/.zshrc"
 alias dotsync="~/.dotfiles/sync"
 
+reload-terminal() {
+  if [[ -n ${_RELOAD_TERMINAL_ACTIVE:-} ]]; then
+    print -u2 -- "reload-terminal: already running; skipped recursive reload"
+    return 1
+  fi
+
+  local _RELOAD_TERMINAL_ACTIVE=1
+  local tmux_client
+  local -a completed warnings
+
+  if [[ -n ${TMUX:-} ]]; then
+    if (( ! $+commands[tmux] )); then
+      warnings+=("tmux is unavailable")
+    elif [[ ! -r $HOME/.tmux.conf ]]; then
+      warnings+=("~/.tmux.conf is not readable")
+    elif tmux source-file "$HOME/.tmux.conf"; then
+      tmux_client="$(tmux display-message -p '#{client_tty}' 2>/dev/null)"
+      if [[ -n $tmux_client ]] && tmux refresh-client -t "$tmux_client" -S; then
+        completed+=("tmux config/status")
+      else
+        completed+=("tmux config")
+        warnings+=("could not refresh the invoking tmux client status")
+      fi
+    else
+      warnings+=("could not source ~/.tmux.conf")
+    fi
+  fi
+
+  if (( $+commands[sketchybar] )); then
+    if sketchybar --reload; then
+      completed+=("SketchyBar")
+    else
+      warnings+=("SketchyBar reload failed")
+    fi
+  fi
+
+  if [[ ${TERM_PROGRAM:-} == ghostty && $OSTYPE == darwin* ]]; then
+    if osascript -e 'tell application "System Events" to tell process "Ghostty" to keystroke "," using {command down, shift down}' >/dev/null 2>&1; then
+      completed+=("Ghostty config")
+    else
+      warnings+=("Ghostty config reload failed (check Accessibility permission)")
+    fi
+  fi
+
+  if source "$HOME/.zshrc"; then
+    completed+=("shell config")
+  else
+    warnings+=("could not source ~/.zshrc")
+  fi
+
+  print -- "reload-terminal: complete (${(j:, :)completed})"
+  (( ${#warnings} )) && print -u2 -- "reload-terminal: warnings: ${(j:; :)warnings}"
+}
+
 alias lg="lazygit"
 alias ld="lazydocker"
 alias nv="nvim ."

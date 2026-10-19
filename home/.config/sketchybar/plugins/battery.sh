@@ -15,11 +15,11 @@ percentage="$(printf '%s\n' "$battery_info" | /usr/bin/awk 'match($0, /[0-9]+%/)
 
 case "$battery_info" in
   *charging*|*AC\ Power*)
-    sketchybar --set battery icon="$ICON_BATTERY_CHARGING" icon.color="$GREEN" label="$percentage" \
+    sketchybar --set battery icon="$ICON_BATTERY_CHARGING" icon.font="$ICON_FONT" icon.color="$GREEN" label="$percentage" \
       --set battery.detail label="Charging · ${percentage}"
     ;;
   *)
-    sketchybar --set battery icon="$ICON_BATTERY" icon.color="$TEXT" label="$percentage" \
+    sketchybar --set battery icon="$ICON_BATTERY" icon.font="$TOP_BAR_ICON_FONT" icon.color="$TEXT" label="$percentage" \
       --set battery.detail label="Battery · ${percentage}"
     ;;
 esac
