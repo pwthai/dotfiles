@@ -153,10 +153,13 @@ _backup_if_unmanaged "$HOME/.gitmodules"
 _backup_if_unmanaged "$HOME/.agents"
 _backup_if_unmanaged "$HOME/.config/aerospace"
 _backup_if_unmanaged "$HOME/.config/ghostty"
+_backup_if_unmanaged "$HOME/.config/sketchybar"
 _backup_if_unmanaged "$HOME/.config/nvim"
 _backup_if_unmanaged "$HOME/.config/ohmyzsh"
 _backup_if_unmanaged "$HOME/.config/opencode"
 _backup_if_unmanaged "$HOME/.config/tuicr"
+_backup_if_unmanaged "$HOME/Library/Application Support/lazygit"
+_backup_if_unmanaged "$HOME/Library/Application Support/lazydocker"
 
 mkdir -p "$HOME/.config"
 stow --target="$HOME" --dir="$DOTFILES" --restow home
@@ -202,9 +205,9 @@ step "Linking Oh My Zsh theme"
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 mkdir -p "$ZSH_CUSTOM/themes"
 ln -sf \
-  "$DOTFILES/home/.config/ohmyzsh/themes/bubble-catppuccin.zsh-theme" \
-  "$ZSH_CUSTOM/themes/bubble-catppuccin.zsh-theme"
-info "bubble-catppuccin.zsh-theme -> $ZSH_CUSTOM/themes/"
+  "$DOTFILES/home/.config/ohmyzsh/themes/bubble-akane.zsh-theme" \
+  "$ZSH_CUSTOM/themes/bubble-akane.zsh-theme"
+info "bubble-akane.zsh-theme -> $ZSH_CUSTOM/themes/"
 
 # ─── 9. TPM (Tmux Plugin Manager) ────────────────────────────────────────────
 step "Installing TPM"
@@ -226,10 +229,6 @@ if ! "$TPM/bin/install_plugins"; then
   echo "Error: TPM plugin installation failed." >&2
   exit 1
 fi
-if [ ! -d "$HOME/.tmux/plugins/tmux" ]; then
-  echo "Error: Catppuccin tmux plugin was not installed at $HOME/.tmux/plugins/tmux" >&2
-  exit 1
-fi
 
 # ─── 11. Initialize Neovim plugins and theme ──────────────────────────────────
 step "Initializing Neovim plugins and theme"
@@ -248,11 +247,17 @@ defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock autohide-delay -float 0
 defaults write com.apple.dock autohide-time-modifier -float 0
 defaults write com.apple.dock mru-spaces -bool false
+defaults write NSGlobalDomain _HIHideMenuBar -bool true
 killall Dock >/dev/null 2>&1 || true
+# Re-launching this lightweight system service applies menu-bar auto-hide
+# immediately and does not close user applications.
+killall SystemUIServer >/dev/null 2>&1 || true
 
 # ─── 13. Services ────────────────────────────────────────────────────────────
-step "Starting borders"
-if [ -x "$DOTFILES/scripts/start-borders.sh" ]; then
+step "Starting desktop bar and borders"
+if [ -x "$HOME/.config/sketchybar/start.sh" ]; then
+  "$HOME/.config/sketchybar/start.sh" || true
+elif [ -x "$DOTFILES/scripts/start-borders.sh" ]; then
   "$DOTFILES/scripts/start-borders.sh" || true
 fi
 

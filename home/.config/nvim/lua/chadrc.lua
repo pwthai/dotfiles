@@ -5,8 +5,10 @@
 local M = {}
 
 M.base46 = {
-  theme = "tokyonight",
-  transparency = true,
+  theme = "akane",
+  -- Keep theme-owned floats and popups opaque; init.lua selectively makes
+  -- editing surfaces transparent after Base46 loads.
+  transparency = false,
 }
 
 return M

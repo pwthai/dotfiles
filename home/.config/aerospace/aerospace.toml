@@ -7,7 +7,7 @@ config-version = 2
 
 # You can use it to add commands that run after AeroSpace startup.
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
-after-startup-command = ['exec-and-forget sketchybar']
+after-startup-command = ['exec-and-forget $HOME/.config/sketchybar/start.sh']
 exec-on-workspace-change = ['/bin/bash', '-c',
     'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE']
 
@@ -86,7 +86,9 @@ on-mode-changed = []
     inner.vertical =   5
     outer.left =       5
     outer.bottom =     5
-    outer.top =        5
+    # AeroSpace applies this after macOS's visibleRect. The compact bar already
+    # occupies that reserved region, so this is only a supplemental breathing gap.
+    outer.top =        6
     outer.right =      5
 
 # 'main' binding mode declaration
@@ -192,4 +194,3 @@ on-mode-changed = []
 [[on-window-detected]]
     if.app-id = 'com.spotify.client'
     run = 'move-node-to-workspace 9'
-

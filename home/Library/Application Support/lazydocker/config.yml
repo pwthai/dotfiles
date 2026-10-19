@@ -1,0 +1,11 @@
+# Akane theme for LazyDocker; the terminal supplies the Akane Plum background.
+gui:
+  theme:
+    activeBorderColor:
+      - "#E55454"
+    inactiveBorderColor:
+      - "#7F303A"
+    selectedLineBgColor:
+      - "#241B20"
+    optionsTextColor:
+      - "#EAA0A0"

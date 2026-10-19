@@ -1,0 +1,37 @@
+# Akane colors inherit Ghostty's Akane Plum canvas; panels remain Charcoal Red.
+gui:
+  colorScheme: dark
+  darkTheme:
+    activeBorderColor:
+      - "#E55454"
+    inactiveBorderColor:
+      - "#7F303A"
+    searchingActiveBorderColor:
+      - "#F4C27A"
+    optionsTextColor:
+      - "#EAA0A0"
+    defaultFgColor:
+      - "#F2E3DC"
+    selectedLineFgColor:
+      - "#F2E3DC"
+    selectedLineBgColor:
+      - "#7F303A"
+    inactiveViewSelectedLineBgColor:
+      - "#241B20"
+    unstagedChangesColor:
+      - "#F07863"
+    cherryPickedCommitBgColor:
+      - "#241B20"
+    cherryPickedCommitFgColor:
+      - "#F4C27A"
+    markedBaseCommitBgColor:
+      - "#7F303A"
+    markedBaseCommitFgColor:
+      - "#F2E3DC"
+    authorColors:
+      "*": "#EAA0A0"
+    branchColorPatterns:
+      "main": "#F4C27A"
+      "master": "#F4C27A"
+      "feature/.*": "#EAA0A0"
+      "fix/.*": "#E55454"

@@ -1,5 +1,5 @@
-# Catppuccin Mocha chrome with GitHub's blue/orange colorblind diff cues.
-theme = "catppuccin-mocha-colorblind"
+# Akane chrome with warm semantic accents.
+theme = "akane"
 
 # Preserve the theme's intended contrast instead of inheriting the terminal background.
 transparent_background = false

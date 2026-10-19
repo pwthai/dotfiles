@@ -57,10 +57,13 @@ _backup_if_unmanaged "$HOME/.gitmodules"
 _backup_if_unmanaged "$HOME/.agents"
 _backup_if_unmanaged "$HOME/.config/aerospace"
 _backup_if_unmanaged "$HOME/.config/ghostty"
+_backup_if_unmanaged "$HOME/.config/sketchybar"
 _backup_if_unmanaged "$HOME/.config/nvim"
 _backup_if_unmanaged "$HOME/.config/ohmyzsh"
 _backup_if_unmanaged "$HOME/.config/opencode"
 _backup_if_unmanaged "$HOME/.config/tuicr"
+_backup_if_unmanaged "$HOME/Library/Application Support/lazygit"
+_backup_if_unmanaged "$HOME/Library/Application Support/lazydocker"
 
 echo "==> Restowing dotfiles"
 mkdir -p "$HOME/.config"
@@ -70,7 +73,7 @@ echo "==> Refreshing Oh My Zsh theme symlink"
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 mkdir -p "$ZSH_CUSTOM/themes"
 ln -sf \
-  "$DOTFILES/home/.config/ohmyzsh/themes/bubble-catppuccin.zsh-theme" \
-  "$ZSH_CUSTOM/themes/bubble-catppuccin.zsh-theme"
+  "$DOTFILES/home/.config/ohmyzsh/themes/bubble-akane.zsh-theme" \
+  "$ZSH_CUSTOM/themes/bubble-akane.zsh-theme"
 
 echo "==> Done"

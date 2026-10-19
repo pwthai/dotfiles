@@ -1,9 +1,14 @@
-# Catppuccin Mocha Theme
-theme = catppuccin-mocha
+# Akane theme
+theme = akane
 
 # Font configuration
 font-family = "Hack Nerd Font"
 font-size = 13
+
+# Let the Akane Plum base breathe without weakening text contrast.
+# Ghostty supports this restrained blur on macOS.
+background-opacity = 0.90
+background-blur-radius = 12
 
 # Window padding
 window-padding-x = 8
