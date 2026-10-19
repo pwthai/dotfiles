@@ -8,3 +8,4 @@
 **/*id_ed25519*
 .env
 .env.*
+home/.config/opencode/service.json
