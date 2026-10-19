@@ -23,6 +23,7 @@ brew "anomalyco/tap/opencode"
 brew "zoxide"
 brew "thefuck"
 brew "fzf"
+brew "blueutil"
 
 # Git tools
 brew "git"

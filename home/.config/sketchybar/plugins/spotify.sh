@@ -12,7 +12,8 @@ if application "Spotify" is not running then return ""
 tell application "Spotify"
   set playbackState to (player state as text)
   try
-    return playbackState & "|" & (artist of current track) & "|" & (name of current track)
+    set currentTrack to current track
+    return playbackState & "|" & (artist of currentTrack) & "|" & (name of currentTrack)
   on error
     return playbackState & "||"
   end try
@@ -38,6 +39,10 @@ end run
 APPLESCRIPT
 }
 
+spotify_label() {
+  printf '%s — %s' "$1" "$2"
+}
+
 update_spotify() {
   local status state artist track label control_icon control_label
 
@@ -60,7 +65,7 @@ EOF
     return
   fi
 
-  label="$artist — $track"
+  label="$(spotify_label "$artist" "$track")"
   control_icon="$ICON_PAUSE"
   control_label="Pause"
   if [ "$state" = "paused" ]; then
@@ -74,6 +79,9 @@ EOF
 }
 
 case "$action" in
+  label-fixture)
+    spotify_label "${2:-}" "${3:-}"
+    ;;
   previous|playpause|next)
     spotify_action "$action"
     update_spotify

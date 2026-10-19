@@ -11,12 +11,11 @@ set_connectivity_idle_state() {
 
   sketchybar --set "$item" background.drawing=off
 
-  if [ "$item" = "wifi" ]; then
-    # Re-run the status updater so its connected/offline color remains truthful.
-    "$PLUGIN_DIR/wifi.sh"
-  else
-    sketchybar --set "$item" icon.color="$SUBTEXT"
-  fi
+  case "$item" in
+    wifi) WIFI_STATUS_ONLY=1 "$PLUGIN_DIR/wifi.sh" ;;
+    bluetooth) BLUETOOTH_STATUS_ONLY=1 "$PLUGIN_DIR/bluetooth.sh" ;;
+    *) sketchybar --set "$item" icon.color="$SUBTEXT" ;;
+  esac
 }
 
 case "${SENDER:-}" in

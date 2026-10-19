@@ -10,7 +10,7 @@ source "$CONFIG_DIR/icons.sh"
 
 FONT="Hack Nerd Font:Regular:12.0"
 FONT_BOLD="Hack Nerd Font:Bold:12.0"
-ICON_FONT="Hack Nerd Font Mono:Regular:12.0"
+ICON_FONT="Hack Nerd Font Mono:Regular:14.0"
 BAR_HEIGHT=27
 MODULE_HEIGHT=27
 PADDING=5
@@ -18,6 +18,7 @@ RADIUS=7
 ITEM_EDGE_PADDING=9
 ITEM_GAP=3
 WORKSPACE_LABEL_PADDING=7
+CONNECTIVITY_EDGE_PADDING=5
 
 sketchybar --bar \
   position=top \
@@ -120,8 +121,9 @@ sketchybar --add bracket workspaces workspace.1 workspace.2 workspace.3 workspac
   background.border_color="$MODULE_BORDER" background.border_width=1 \
   background.corner_radius="$RADIUS" background.height="$MODULE_HEIGHT" background.padding_left=3 background.padding_right=3
 
-# Center: a quiet front-app module, avoiding a duplicate macOS menu bar.
-sketchybar --add item front_app center \
+# Keep the front-app label left of a built-in camera notch; it remains a quiet
+# centered-adjacent module on external displays without hardcoding monitor IDs.
+sketchybar --add item front_app q \
   --set front_app icon.drawing=off label.font="$FONT" label.color="$SUBTEXT" \
   label.max_chars=30 label.padding_left="$ITEM_EDGE_PADDING" label.padding_right="$ITEM_EDGE_PADDING" script="$PLUGIN_DIR/front_app.sh" \
   --subscribe front_app front_app_switched system_woke
@@ -171,7 +173,6 @@ configure_status_host() {
 
 sketchybar --add item clock right \
   --set clock icon="$ICON_CLOCK" label.font="$FONT_BOLD" script="$PLUGIN_DIR/clock.sh" update_freq=30 \
-    click_script="/usr/bin/open -a Calendar" \
   --subscribe clock system_woke
 
 sketchybar --add bracket clock_group clock \
@@ -185,19 +186,20 @@ configure_connectivity_item() {
   local host="$1"
   local icon="$2"
   local update_freq="$3"
+  local status_script="$4"
 
   sketchybar --add item "$host" right \
-    --set "$host" icon="$icon" label.drawing=off update_freq="$update_freq" \
-      icon.padding_left="$ITEM_EDGE_PADDING" icon.padding_right="$ITEM_EDGE_PADDING" \
-      background.drawing=off script="$PLUGIN_DIR/connectivity.sh $host" \
+    --set "$host" icon="$icon" icon.font="$ICON_FONT" label.drawing=off update_freq="$update_freq" \
+      icon.padding_left="$CONNECTIVITY_EDGE_PADDING" icon.padding_right="$CONNECTIVITY_EDGE_PADDING" \
+      background.drawing=off script="$status_script" \
       click_script="$PLUGIN_DIR/control_center.sh" \
     --subscribe "$host" mouse.entered mouse.exited system_woke
 }
 
-# These are full, padded targets for the main native Control Center only.
-configure_connectivity_item wifi "$ICON_WIFI" 60
-configure_connectivity_item bluetooth "$ICON_BLUETOOTH" 0
-configure_connectivity_item focus "$ICON_FOCUS" 0
+# Compact custom controls retain real read-only Wi-Fi/Bluetooth state colors.
+configure_connectivity_item wifi "$ICON_WIFI" 60 "$PLUGIN_DIR/wifi.sh"
+configure_connectivity_item bluetooth "$ICON_BLUETOOTH" 60 "$PLUGIN_DIR/bluetooth.sh"
+configure_connectivity_item focus "$ICON_FOCUS" 0 "$PLUGIN_DIR/connectivity.sh focus"
 
 sketchybar --add bracket connectivity_group wifi bluetooth focus \
   --set connectivity_group background.drawing=on background.color="$MODULE_BG" \
@@ -207,15 +209,19 @@ sketchybar --add bracket connectivity_group wifi bluetooth focus \
 add_spacer connectivity_divider right 7
 
 # Spotify keeps playback information available without opening or autoplaying it.
+# SketchyBar observes this distributed notification when the installed version supports it;
+# the three-second polling interval remains the guarded fallback.
+sketchybar --add event spotify_playback_changed "com.spotify.client.PlaybackStateChanged"
+
 sketchybar --add item spotify right \
   --set spotify icon="$ICON_SPOTIFY" icon.color="$SUBTEXT" label.drawing=off \
     label.font="$FONT" label.color="$TEXT" label.max_chars=24 \
     icon.padding_left="$ITEM_EDGE_PADDING" icon.padding_right="$ITEM_GAP" \
     label.padding_left="$ITEM_GAP" label.padding_right="$ITEM_EDGE_PADDING" \
-    script="$PLUGIN_DIR/spotify.sh status" update_freq=10 popup.align=right popup.height=30 \
+    script="$PLUGIN_DIR/spotify.sh status" update_freq=3 popup.align=right popup.height=30 \
     popup.background.color="$MODULE_BG" popup.background.border_color="$MODULE_BORDER" \
     popup.background.border_width=1 popup.background.corner_radius="$RADIUS" \
-  --subscribe spotify mouse.clicked mouse.exited.global system_woke
+  --subscribe spotify mouse.clicked mouse.exited.global system_woke spotify_playback_changed media_change media_play media_pause
 
 sketchybar --add item spotify.detail popup.spotify \
   --set spotify.detail icon="$ICON_SPOTIFY" icon.color="$GREEN" icon.font="$ICON_FONT" \

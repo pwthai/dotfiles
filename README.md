@@ -50,7 +50,9 @@ Terminal but not from the bar, add the actual Homebrew SketchyBar binary
 (`/opt/homebrew/bin/sketchybar`, resolving its symlink if applicable) in
 System Settings → Privacy & Security → Accessibility, then allow Automation
 for System Events if macOS prompts. Do not reset TCC or change permissions by
-script.
+script. Wi-Fi status uses read-only `ipconfig` link detection and Bluetooth
+status uses read-only `blueutil --power`; Focus remains neutral because macOS
+has no stable public status API for it.
 
 macOS may still reveal its auto-hidden menu bar when the pointer reaches the
 top screen edge. This is standard system behavior; the setup does not use a
