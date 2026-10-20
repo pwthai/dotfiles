@@ -69,11 +69,24 @@ echo "==> Restowing dotfiles"
 mkdir -p "$HOME/.config"
 stow --target="$HOME" --dir="$DOTFILES" --restow home
 
+echo "==> Removing legacy AeroSpace config"
+_backup_if_unmanaged "$HOME/.aerospace.toml"
+rm -f "$HOME/.aerospace.toml"
+
+echo "==> Setting desktop wallpaper"
+"$DOTFILES/scripts/set-wallpaper.sh" "$DOTFILES/wallpaper.png"
+
 echo "==> Refreshing Oh My Zsh theme symlink"
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 mkdir -p "$ZSH_CUSTOM/themes"
 ln -sf \
   "$DOTFILES/home/.config/ohmyzsh/themes/bubble-akane.zsh-theme" \
   "$ZSH_CUSTOM/themes/bubble-akane.zsh-theme"
+
+echo "==> Applying menu-bar auto-hide"
+defaults write NSGlobalDomain _HIHideMenuBar -bool true
+# Re-launching this lightweight system service applies menu-bar auto-hide
+# immediately and does not close user applications.
+killall SystemUIServer >/dev/null 2>&1 || true
 
 echo "==> Done"

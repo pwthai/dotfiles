@@ -38,6 +38,7 @@ brew "gitmux"
 # Editor
 brew "neovim"
 brew "stylua"
+brew "tree-sitter-cli"
 brew "uv"
 
 # Search (used by nvim telescope + ripgrep)

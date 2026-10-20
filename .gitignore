@@ -9,3 +9,7 @@
 .env
 .env.*
 home/.config/opencode/service.json
+
+# application runtime state
+home/Library/Application Support/lazygit/github_pull_requests.json
+home/Library/Application Support/lazygit/state.yml

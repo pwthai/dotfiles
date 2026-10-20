@@ -164,6 +164,10 @@ _backup_if_unmanaged "$HOME/Library/Application Support/lazydocker"
 mkdir -p "$HOME/.config"
 stow --target="$HOME" --dir="$DOTFILES" --restow home
 
+step "Removing legacy AeroSpace config"
+_backup_if_unmanaged "$HOME/.aerospace.toml"
+rm -f "$HOME/.aerospace.toml"
+
 # ─── 7. Initialize OpenCode agents ────────────────────────────────────────────
 _verify_opencode_agents() {
   local agent_list="$1"
@@ -243,6 +247,7 @@ fi
 
 # ─── 12. macOS defaults ──────────────────────────────────────────────────────
 step "Applying macOS defaults"
+"$DOTFILES/scripts/set-wallpaper.sh" "$DOTFILES/wallpaper.png"
 defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock autohide-delay -float 0
 defaults write com.apple.dock autohide-time-modifier -float 0
