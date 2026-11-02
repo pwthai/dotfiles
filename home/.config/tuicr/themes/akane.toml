@@ -1,6 +1,6 @@
 # Akane UI with an Akane Plum base and warm semantic accents.
 panel_bg = "#211A24"
-bg_highlight = "#241b20"
+bg_highlight = "#7f303a"
 fg_primary = "#f2e3dc"
 fg_secondary = "#aa8588"
 fg_dim = "#7f303a"
