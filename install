@@ -265,7 +265,9 @@ killall Dock >/dev/null 2>&1 || true
 killall SystemUIServer >/dev/null 2>&1 || true
 
 # ─── 13. Services ────────────────────────────────────────────────────────────
-step "Starting desktop bar and borders"
+step "Starting AeroSpace, desktop bar, and borders"
+open -a AeroSpace
+
 if [ -x "$HOME/.config/sketchybar/start.sh" ]; then
   "$HOME/.config/sketchybar/start.sh" || true
 elif [ -x "$DOTFILES/scripts/start-borders.sh" ]; then
