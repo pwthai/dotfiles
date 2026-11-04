@@ -39,6 +39,37 @@ fi
 step()  { echo ""; echo "==> $*"; }
 info()  { echo "    $*"; }
 
+_start_aerospace() {
+  local aerospace_config="$HOME/.config/aerospace/aerospace.toml"
+  local attempt max_attempts=10
+
+  if [ ! -f "$aerospace_config" ]; then
+    echo "Warning: AeroSpace config was not found after stowing: $aerospace_config" >&2
+    return 0
+  fi
+
+  if ! open -a AeroSpace >/dev/null 2>&1; then
+    echo "Warning: Unable to launch AeroSpace. Enable it in System Settings > Privacy & Security > Accessibility, then restart AeroSpace or re-run this script." >&2
+    return 0
+  fi
+
+  for ((attempt = 1; attempt <= max_attempts; attempt++)); do
+    if command -v aerospace >/dev/null 2>&1 \
+      && aerospace list-workspaces --all >/dev/null 2>&1; then
+      if aerospace reload-config >/dev/null 2>&1; then
+        info "AeroSpace is running and its configuration was reloaded"
+      else
+        echo "Warning: AeroSpace is running, but its configuration could not be reloaded." >&2
+      fi
+      return 0
+    fi
+    sleep 1
+  done
+
+  echo "Warning: AeroSpace did not become responsive. Enable AeroSpace in System Settings > Privacy & Security > Accessibility, then restart AeroSpace or re-run this script." >&2
+  return 0
+}
+
 # ─── 1. Xcode Command Line Tools ─────────────────────────────────────────────
 step "Checking Xcode Command Line Tools"
 if ! xcode-select -p >/dev/null 2>&1; then
@@ -266,7 +297,7 @@ killall SystemUIServer >/dev/null 2>&1 || true
 
 # ─── 13. Services ────────────────────────────────────────────────────────────
 step "Starting AeroSpace, desktop bar, and borders"
-open -a AeroSpace
+_start_aerospace
 
 if [ -x "$HOME/.config/sketchybar/start.sh" ]; then
   "$HOME/.config/sketchybar/start.sh" || true
@@ -281,4 +312,5 @@ echo "NEXT STEPS:"
 echo "  1) Open a new terminal (or run: exec zsh)"
 echo "  2) System Settings -> Desktop & Dock:"
 echo "       - Turn OFF 'Automatically rearrange Spaces based on most recent use'"
-echo "  3) Create Spaces in Mission Control for your workspace keybinds (1..5, etc.)"
+echo "  3) System Settings -> Privacy & Security -> Accessibility: enable AeroSpace"
+echo "  4) Restart AeroSpace (or re-run this script) after granting Accessibility permission"
