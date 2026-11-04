@@ -69,6 +69,19 @@ local function apply_surface_groups(groups, foreground, background)
   end
 end
 
+local function apply_cursor_groups(groups, foreground, background)
+  for _, group in ipairs(groups) do
+    -- TermCursor commonly inherits reverse video; clear it so the cursor has
+    -- the same deliberate block treatment in terminal and normal buffers.
+    vim.api.nvim_set_hl(0, group, {
+      fg = foreground,
+      bg = background,
+      reverse = false,
+      cterm = { reverse = false },
+    })
+  end
+end
+
 local function apply_transparency()
   local akane_plum = "#211A24"
   local charcoal_red = "#241B20"
@@ -122,8 +135,15 @@ local function apply_transparency()
   }, deep_crimson, charcoal_red)
 
   apply_surface_groups({ "PmenuSel", "TabLineSel", "TbLineBufOn" }, akane_plum, warm_gold)
-  apply_surface_groups({ "Visual", "CursorLine", "LazyButtonActive" }, warm_ivory, deep_crimson)
-  apply_surface_groups({ "Search", "IncSearch", "CurSearch" }, akane_plum, warm_gold)
+  apply_surface_groups({ "Visual", "LazyButtonActive" }, warm_ivory, deep_crimson)
+
+  -- Keep the cursor and each search state visually distinct: the cursor is an
+  -- ivory block, other matches are crimson, and the active match is warm.
+  apply_cursor_groups({ "Cursor", "lCursor", "CursorIM", "TermCursor" }, akane_plum, warm_ivory)
+  apply_surface_groups({ "CursorLine" }, warm_ivory, charcoal_red)
+  apply_surface_groups({ "Search" }, warm_ivory, deep_crimson)
+  apply_surface_groups({ "IncSearch" }, akane_plum, sunset_peach)
+  apply_surface_groups({ "CurSearch" }, akane_plum, warm_gold)
   apply_surface_groups({ "LazyButton", "WhichKeyTitle", "TelescopeSelection" }, warm_ivory, deep_crimson)
   apply_surface_groups({ "TelescopePromptTitle", "TelescopeResultsTitle", "TelescopePreviewTitle" }, akane_plum, akane_red)
 

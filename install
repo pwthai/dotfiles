@@ -58,6 +58,12 @@ elif [ -x /usr/local/bin/brew ]; then
 fi
 
 # ─── 3. Packages ─────────────────────────────────────────────────────────────
+step "Trusting third-party Homebrew formulae"
+brew trust --formula \
+  anomalyco/tap/opencode \
+  FelixKratz/formulae/borders \
+  FelixKratz/formulae/sketchybar
+
 step "Installing packages from Brewfile"
 if [ "$QUIET" = true ]; then
   brew bundle --file "$DOTFILES/Brewfile"
@@ -175,7 +181,7 @@ _verify_opencode_agents() {
   shift
 
   for agent in "$@"; do
-    if ! printf '%s\n' "$agent_list" | grep -Eq "^[[:space:]]*${agent}[[:space:]]+\((primary|subagent)\)[[:space:]]*$"; then
+    if ! printf '%s\n' "$agent_list" | grep -Eq "\"id\"[[:space:]]*:[[:space:]]*\"${agent}\""; then
       missing_agents="${missing_agents}${missing_agents:+, }${agent}"
     fi
   done
@@ -194,9 +200,9 @@ if ! command -v opencode >/dev/null 2>&1; then
   exit 1
 fi
 info "Loading configured agents and initializing the plugin cache..."
-if ! opencode_agent_list="$(opencode agent list 2>&1)"; then
+if ! opencode_agent_list="$(opencode debug agents 2>&1)"; then
   printf '%s\n' "$opencode_agent_list" >&2
-  echo "Error: OpenCode agent plugin failed to load." >&2
+  echo "Error: OpenCode agent discovery failed." >&2
   exit 1
 fi
 if ! _verify_opencode_agents "$opencode_agent_list" \

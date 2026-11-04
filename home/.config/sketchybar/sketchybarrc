@@ -120,6 +120,31 @@ sketchybar --add bracket workspaces workspace.1 workspace.2 workspace.3 workspac
   background.border_color="$MODULE_BORDER" background.border_width=1 \
   background.corner_radius="$RADIUS" background.height="$MODULE_HEIGHT" background.padding_left=3 background.padding_right=3
 
+# The focused workspace's root layout has a separate, compact control.
+add_spacer workspace_layout_divider left 4
+
+sketchybar --add item workspace.1.layout left \
+  --set workspace.1.layout \
+    icon="$ICON_LAYOUT_TILES" \
+    label="1 Tiles" \
+    icon.font="$ICON_FONT" \
+    label.font="$FONT_BOLD" \
+    background.drawing=on \
+    background.color=0x00000000 \
+    background.height=18 \
+    background.corner_radius=5 \
+    icon.padding_left=7 \
+    icon.padding_right=4 \
+    label.padding_left=0 \
+    label.padding_right=8 \
+    click_script="$PLUGIN_DIR/workspace_layout.sh" \
+    script="$PLUGIN_DIR/workspace_layout.sh"
+
+sketchybar --add bracket workspace_layout_group workspace.1.layout \
+  --set workspace_layout_group background.drawing=on background.color="$MODULE_BG" \
+  background.border_color="$MODULE_BORDER" background.border_width=1 \
+  background.corner_radius="$RADIUS" background.height="$MODULE_HEIGHT" background.padding_left=3 background.padding_right=3
+
 # Keep the front-app label left of a built-in camera notch; it remains a clear
 # centered-adjacent module on external displays without hardcoding monitor IDs.
 sketchybar --add item front_app q \
@@ -269,6 +294,7 @@ sketchybar --add bracket power_group volume battery \
   background.corner_radius="$RADIUS" background.height="$MODULE_HEIGHT" background.padding_left=3 background.padding_right=3
 
 sketchybar --add event aerospace_workspace_change \
+  --add event aerospace_workspace_layout_change \
   --subscribe workspace.1 aerospace_workspace_change system_woke \
   --subscribe workspace.2 aerospace_workspace_change system_woke \
   --subscribe workspace.3 aerospace_workspace_change system_woke \
@@ -277,6 +303,7 @@ sketchybar --add event aerospace_workspace_change \
   --subscribe workspace.6 aerospace_workspace_change system_woke \
   --subscribe workspace.7 aerospace_workspace_change system_woke \
   --subscribe workspace.8 aerospace_workspace_change system_woke \
-  --subscribe workspace.9 aerospace_workspace_change system_woke
+  --subscribe workspace.9 aerospace_workspace_change system_woke \
+  --subscribe workspace.1.layout aerospace_workspace_change aerospace_workspace_layout_change system_woke
 
 sketchybar --update
