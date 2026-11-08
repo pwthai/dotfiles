@@ -145,6 +145,47 @@ sketchybar --add bracket workspace_layout_group workspace.1.layout \
   background.border_color="$MODULE_BORDER" background.border_width=1 \
   background.corner_radius="$RADIUS" background.height="$MODULE_HEIGHT" background.padding_left=3 background.padding_right=3
 
+# AeroSpace keeps its mode visible beside the workspace controls. Clicking the
+# compact pill reveals its shortcut reference; service mode opens it on entry.
+add_spacer aerospace_mode_divider left 4
+
+sketchybar --add item aerospace_mode left \
+  --set aerospace_mode \
+    label="⌥⇧;  MAIN" \
+    label.font="$FONT_BOLD" \
+    label.color="$SUBTEXT" \
+    icon.drawing=off \
+    background.drawing=off \
+    popup.align=left \
+    popup.height=29 \
+    popup.background.color="$MODULE_BG" \
+    popup.background.border_color="$MODULE_BORDER" \
+    popup.background.border_width=1 \
+    popup.background.corner_radius="$RADIUS" \
+    script="$PLUGIN_DIR/aerospace_mode.sh"
+
+add_aerospace_reference_row() {
+  local row="$1"
+
+  sketchybar --add item "aerospace_mode.reference.$row" popup.aerospace_mode \
+    --set "aerospace_mode.reference.$row" \
+      icon.drawing=off \
+      label.font="$FONT" \
+      label.color="$TEXT" \
+      label.padding_left=10 \
+      label.padding_right=14 \
+      background.drawing=off
+}
+
+for row in 1 2 3 4 5 6 7; do
+  add_aerospace_reference_row "$row"
+done
+
+sketchybar --add bracket aerospace_mode_group aerospace_mode \
+  --set aerospace_mode_group background.drawing=on background.color="$MODULE_BG" \
+  background.border_color="$MODULE_BORDER" background.border_width=1 \
+  background.corner_radius="$RADIUS" background.height="$MODULE_HEIGHT" background.padding_left=3 background.padding_right=3
+
 # Keep the front-app label left of a built-in camera notch; it remains a clear
 # centered-adjacent module on external displays without hardcoding monitor IDs.
 sketchybar --add item front_app q \
@@ -295,6 +336,7 @@ sketchybar --add bracket power_group volume battery \
 
 sketchybar --add event aerospace_workspace_change \
   --add event aerospace_workspace_layout_change \
+  --add event aerospace_mode_change \
   --subscribe workspace.1 aerospace_workspace_change system_woke \
   --subscribe workspace.2 aerospace_workspace_change system_woke \
   --subscribe workspace.3 aerospace_workspace_change system_woke \
@@ -304,6 +346,7 @@ sketchybar --add event aerospace_workspace_change \
   --subscribe workspace.7 aerospace_workspace_change system_woke \
   --subscribe workspace.8 aerospace_workspace_change system_woke \
   --subscribe workspace.9 aerospace_workspace_change system_woke \
-  --subscribe workspace.1.layout aerospace_workspace_change aerospace_workspace_layout_change system_woke
+  --subscribe workspace.1.layout aerospace_workspace_change aerospace_workspace_layout_change system_woke \
+  --subscribe aerospace_mode mouse.clicked mouse.exited.global aerospace_mode_change system_woke
 
 sketchybar --update

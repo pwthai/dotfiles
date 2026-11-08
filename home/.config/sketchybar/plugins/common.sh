@@ -12,7 +12,7 @@ close_custom_popups() {
   local active_host="$1"
   local host
 
-  for host in apple clock volume battery spotify; do
+  for host in apple clock volume battery spotify aerospace_mode; do
     if [ "$host" != "$active_host" ]; then
       sketchybar --set "$host" popup.drawing=off
     fi
