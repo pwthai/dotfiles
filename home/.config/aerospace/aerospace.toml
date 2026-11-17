@@ -138,7 +138,7 @@ on-mode-changed = []
     alt-equal = 'resize smart +50'
 
     # See: https://nikitabobko.github.io/AeroSpace/commands#workspace
-    alt-1 = 'workspace 1'
+    alt-1 = ['workspace 1', 'layout tiles']
     alt-2 = 'workspace 2'
     alt-3 = 'workspace 3'
     alt-4 = 'workspace 4'
@@ -194,3 +194,11 @@ on-mode-changed = []
 [[on-window-detected]]
     if.app-id = 'com.spotify.client'
     run = 'move-node-to-workspace 9'
+
+[[on-window-detected]]
+    if.app-id = 'net.whatsapp.WhatsApp'
+    run = ['move-node-to-workspace 1', 'layout tiling']
+
+[[on-window-detected]]
+    if.app-id = 'company.thebrowser.Browser'
+    run = ['move-node-to-workspace 1', 'layout tiling']

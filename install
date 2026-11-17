@@ -133,6 +133,13 @@ if ! command -v node >/dev/null 2>&1; then
   nvm alias default 'lts/*'
 fi
 
+step "Installing JSON language server"
+if ! command -v vscode-json-language-server >/dev/null 2>&1; then
+  npm install --global vscode-langservers-extracted
+else
+  info "Already installed"
+fi
+
 # ─── 6. Stow dotfiles ────────────────────────────────────────────────────────
 step "Stowing dotfiles (target: $HOME)"
 
